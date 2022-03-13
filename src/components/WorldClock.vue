@@ -135,7 +135,11 @@ export default {
             { location: "Hawaii", t24h: moment().tz("US/Hawaii").format("H:mm:ss"), t12h: moment().tz("US/Hawaii").format("h:mm:ss A") },
             { location: "Alaska", t24h: moment().tz("US/Alaska").format("H:mm:ss"), t12h: moment().tz("US/Alaska").format("h:mm:ss A") },
             { location: "Phoenix", t24h: moment().tz("US/Arizona").format("H:mm:ss"), t12h: moment().tz("US/Arizona").format("h:mm:ss A") },
-            { location: "Buenos Aires", t24h: moment().tz("America/Argentina/Buenos_Aires").format("H:mm:ss"), t12h: moment().tz("America/Argentina/Buenos_Aires").format("h:mm:ss A") },
+            {
+              location: "Buenos Aires",
+              t24h: moment().tz("America/Argentina/Buenos_Aires").format("H:mm:ss"),
+              t12h: moment().tz("America/Argentina/Buenos_Aires").format("h:mm:ss A"),
+            },
           ],
           [
             { location: "London", t24h: moment().tz("Europe/London").format("H:mm:ss"), t12h: moment().tz("Europe/London").format("h:mm:ss A") },
@@ -160,7 +164,7 @@ export default {
         if (moment().minutes() == "00") {
           objThis.getShows();
         }
-        
+
         objThis.displayedRow1 = objThis.rows[0];
         objThis.displayedRow2 = objThis.rows[objThis.rowIteration];
 
@@ -182,11 +186,14 @@ export default {
     getShows: async function () {
       const res = await fetch("https://api.unknower.io/event");
       const data = await res.json();
-      this.showList = data.events;
+      this.showList = data.events.sort((eventA, eventB) => eventA.id - eventB.id);
     },
     getNextShow: function () {
       if (this.showList) {
         const nextShow = this.showList.find((show) => moment(show.startTime).isAfter());
+        if (!nextShow) {
+          return;
+        }
         nextShow.fromNow = moment(nextShow.startTime).fromNow();
         nextShow.displayedTime = moment(nextShow.startTime).tz("America/Denver").format("hh:mm a");
         return nextShow;
